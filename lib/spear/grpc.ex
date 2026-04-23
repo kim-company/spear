@@ -60,19 +60,11 @@ defmodule Spear.Grpc do
   #   Stream.unfold/2
   @spec decode_next_message(binary(), {module(), atom()}) :: nil | {tuple(), binary()}
   def decode_next_message(
-        <<0::unsigned-integer-8, message_length::unsigned-big-integer-8-unit(4),
-          encoded_message::binary-size(message_length), rest::binary>>,
+        <<compressed::unsigned-integer-8, message_length::unsigned-big-integer-8-unit(4),
+          message::binary-size(message_length), rest::binary>>,
         {module, type}
       ) do
-    {module.decode_msg(encoded_message, type), rest}
-  end
-
-  def decode_next_message(
-        <<1::unsigned-integer-8, message_length::unsigned-big-integer-8-unit(4),
-          compressed_message::binary-size(message_length), rest::binary>>,
-        {module, type}
-      ) do
-    encoded_message = :zlib.gunzip(compressed_message)
+    encoded_message = if compressed == 1, do: :zlib.gunzip(message), else: message
     {module.decode_msg(encoded_message, type), rest}
   end
 
