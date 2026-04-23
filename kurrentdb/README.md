@@ -1,7 +1,7 @@
 # KurrentDB config
 
 This directory contains KurrentDB configuration used for testing.
-Certificates can be renewed using `openssl` with the existing CA key:
+Certificates can be renewed using `openssl` with the existing CA key, or with the [es-gencert-cli](https://github.com/kurrent-io/es-gencert-cli) tool.
 
 ```bash
 openssl genrsa -out kurrentdb/certs/node.key 2048
