@@ -1,12 +1,14 @@
 services:
-  eventstore:
+  kurrentdb:
+    profiles: ["kurrent"]
+    hostname: eventstore
     image: kurrentplatform/kurrentdb:lts
     user: root
     environment:
     - KURRENTDB_START_STANDARD_PROJECTIONS=True
     - KURRENTDB_RUN_PROJECTIONS=All
     volumes:
-    - spear_eventstore:/var/lib/kurrent
+    - spear_kurrent:/var/lib/kurrent
     - ./kurrentdb:/etc/kurrentdb:ro
     # to run in insecure mode, which can be nice for debugging protobuf
     # messages via wireshark
@@ -14,18 +16,38 @@ services:
     ports:
     - 2113:2113
 
+  esdb:
+    profiles: ["esdb"]
+    hostname: eventstore
+    image: eventstore/eventstore:24.10.6-bookworm-slim
+    user: root
+    environment:
+    - EVENTSTORE_START_STANDARD_PROJECTIONS=True
+    - EVENTSTORE_RUN_PROJECTIONS=All
+    volumes:
+    - spear_esdb:/var/lib/eventstore
+    - ./kurrentdb:/etc/eventstore:ro
+    ports:
+    - 2113:2113
+
   app:
     image: elixir:1.16.2
     depends_on:
-    - eventstore
+      kurrentdb:
+        condition: service_started
+        required: false
+      esdb:
+        condition: service_started
+        required: false
     environment:
     - 'ERL_AFLAGS=-kernel shell_history enabled'
     - EVENTSTORE_HOST=eventstore
-    - EVENTSTORE_VERSION=nightly
+    - EVENTSTORE_VERSION=${EVENTSTORE_VERSION:-nightly}
     volumes:
     - ./:/app
     working_dir: /app
     command: bash -c "mix local.rebar --force && mix local.hex --force && tail -f /dev/null"
 
 volumes:
-  spear_eventstore:
+  spear_kurrent:
+  spear_esdb:

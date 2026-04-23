@@ -131,6 +131,6 @@ defmodule Spear.ConnectionTest do
 
     conn = start_supervised!({Spear.Connection, config})
     assert {:error, reason} = Spear.subscribe(conn, self(), :all)
-    assert reason.status == :unauthenticated
+    assert reason.status == :unauthenticated or reason.message =~ "401"
   end
 end

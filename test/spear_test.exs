@@ -226,7 +226,7 @@ defmodule SpearTest do
                  credentials: {login_name, password}
                )
 
-      assert reason.status == :unauthenticated
+      assert reason.status == :unauthenticated or reason.message =~ "401"
 
       assert {:error, ^reason} =
                Spear.read_stream(c.conn, c.stream_name, credentials: {login_name, password})
@@ -664,7 +664,7 @@ defmodule SpearTest do
                [random_event()]
                |> Spear.append(c.conn, c.stream_name, credentials: {"no one", "no pass"})
 
-      assert reason.status == :unauthenticated
+      assert reason.status == :unauthenticated or reason.message =~ "401"
 
       # reset ACL
       assert Spear.set_global_acl(c.conn, Spear.Acl.allow_all(), Spear.Acl.admins_only()) == :ok
@@ -678,7 +678,7 @@ defmodule SpearTest do
                [random_event()]
                |> Spear.append(c.conn, c.stream_name, credentials: {"no one", "no pass"})
 
-      assert reason.status == :unauthenticated
+      assert reason.status == :unauthenticated or reason.message =~ "401"
 
       # reset ACL
       metadata = %Spear.StreamMetadata{acl: Spear.Acl.allow_all()}
