@@ -1,14 +1,13 @@
-version: '3.8'
-
 services:
   eventstore:
-    image: ghcr.io/eventstore/eventstore:ci
+    image: kurrentplatform/kurrentdb:lts
+    user: root
     environment:
-    - EVENTSTORE_START_STANDARD_PROJECTIONS=True
-    - EVENTSTORE_RUN_PROJECTIONS=All
+    - KURRENTDB_START_STANDARD_PROJECTIONS=True
+    - KURRENTDB_RUN_PROJECTIONS=All
     volumes:
-    - spear_eventstore:/var/lib/eventstore
-    - ./eventstoredb:/etc/eventstore:ro
+    - spear_eventstore:/var/lib/kurrent
+    - ./kurrentdb:/etc/kurrentdb:ro
     # to run in insecure mode, which can be nice for debugging protobuf
     # messages via wireshark
     # command: "--insecure --run-projections=All"

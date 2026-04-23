@@ -8,6 +8,6 @@ config :spear, :config,
   connection_string: "esdb://admin:changeit@#{host}:2113?tls=true",
   mint_opts: [
     transport_opts: [
-      cacertfile: Path.join([__DIR__ | ~w(.. eventstoredb certs ca ca.crt)])
+      cacertfile: Path.join([__DIR__ | ~w(.. kurrentdb certs ca ca.crt)])
     ]
   ]
