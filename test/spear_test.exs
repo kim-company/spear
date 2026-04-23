@@ -226,7 +226,7 @@ defmodule SpearTest do
                  credentials: {login_name, password}
                )
 
-      assert reason.message =~ "401"
+      assert reason.status == :unauthenticated
 
       assert {:error, ^reason} =
                Spear.read_stream(c.conn, c.stream_name, credentials: {login_name, password})
@@ -466,7 +466,8 @@ defmodule SpearTest do
 
       assert {:error, reason} = Spear.append([big_event], c.conn, c.stream_name, timeout: 15_000)
 
-      assert reason == maximum_append_size_error()
+      assert reason.status == :invalid_argument
+      assert reason.message =~ "#{@max_append_bytes}"
     end
 
     test "attempting to append to a tombstoned stream gives a gRPC error", c do
@@ -663,7 +664,7 @@ defmodule SpearTest do
                [random_event()]
                |> Spear.append(c.conn, c.stream_name, credentials: {"no one", "no pass"})
 
-      assert reason.message == "Bad HTTP status code: 401, should be 200"
+      assert reason.status == :unauthenticated
 
       # reset ACL
       assert Spear.set_global_acl(c.conn, Spear.Acl.allow_all(), Spear.Acl.admins_only()) == :ok
@@ -677,7 +678,7 @@ defmodule SpearTest do
                [random_event()]
                |> Spear.append(c.conn, c.stream_name, credentials: {"no one", "no pass"})
 
-      assert reason.message == "Bad HTTP status code: 401, should be 200"
+      assert reason.status == :unauthenticated
 
       # reset ACL
       metadata = %Spear.StreamMetadata{acl: Spear.Acl.allow_all()}
