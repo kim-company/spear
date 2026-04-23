@@ -64,7 +64,15 @@ defmodule Spear.Grpc do
           encoded_message::binary-size(message_length), rest::binary>>,
         {module, type}
       ) do
-    # YARD decompression
+    {module.decode_msg(encoded_message, type), rest}
+  end
+
+  def decode_next_message(
+        <<1::unsigned-integer-8, message_length::unsigned-big-integer-8-unit(4),
+          compressed_message::binary-size(message_length), rest::binary>>,
+        {module, type}
+      ) do
+    encoded_message = :zlib.gunzip(compressed_message)
     {module.decode_msg(encoded_message, type), rest}
   end
 
